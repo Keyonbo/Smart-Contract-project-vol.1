@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
 const web3 = new Web3(window.ethereum);
 
 // 2️⃣ Адрес и ABI контракта (ЗАМЕНИ на свои данные!)
-const CONTRACT_ADDRESS = "0x123456789abcdef..."; // Вставь адрес контракта
+const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138"; // Вставь адрес контракта
 const CONTRACT_ABI = [ /* Вставь ABI контракта из Remix или Hardhat */ ];
 
 // 3️⃣ Подключение к контракту
