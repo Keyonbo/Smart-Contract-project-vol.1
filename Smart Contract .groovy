@@ -35,24 +35,24 @@ contract GiftEscrow {
     );
 
     /**
-     * @dev Vytvoří nový dárek a uzamkne do něj ETH.
+     * @dev Vytvoří nový dárek a uzamkne do něj ETH na `block.timestamp + _delayInSeconds`.
      * @param _recipient Adresa příjemce dárku
-     * @param _unlockTime Čas (timestamp), kdy je možné dárek vybrat
+     * @param _delayInSeconds Počet sekund, po které bude dárek uzamčen
      */
-    function createGift(address _recipient, uint256 _unlockTime) external payable {
+    function createGift(address _recipient, uint256 _delayInSeconds) external payable {
         require(msg.value > 0, "Must send ETH to create a gift");
         require(_recipient != address(0), "Recipient cannot be zero address");
-        require(
-            _unlockTime > block.timestamp,
-            "Unlock time must be in the future"
-        );
+        require(_delayInSeconds > 0, "Delay must be greater than zero");
+
+        // Vypočítání unlockTime jako současný čas + delay
+        uint256 unlockTime = block.timestamp + _delayInSeconds;
 
         // Vytvoření struktury Gift
         Gift memory newGift = Gift({
             sender: msg.sender,
             recipient: _recipient,
             amount: msg.value,
-            unlockTime: _unlockTime,
+            unlockTime: unlockTime,
             withdrawn: false
         });
 
@@ -61,7 +61,7 @@ contract GiftEscrow {
         uint256 giftId = gifts.length - 1;
 
         // Emitujeme událost
-        emit GiftCreated(giftId, msg.sender, _recipient, msg.value, _unlockTime);
+        emit GiftCreated(giftId, msg.sender, _recipient, msg.value, unlockTime);
     }
 
     /**
