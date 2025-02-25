@@ -3,21 +3,19 @@
 let gifts = [];
 
 // Funkce pro vytvoření "dárku"
-function mockCreateGift(sender, recipient, unlockTime, amount) {
+function mockCreateGift(sender, recipient, delayInSeconds, amount) {
   // Simulujeme basic checky:
-  if (!sender || !recipient || !unlockTime || !amount) {
+  if (!sender || !recipient || !delayInSeconds || !amount) {
     throw new Error("Missing input fields!");
   }
-  // unlockTime by měl být v budoucnosti:
-  if (Number(unlockTime) <= Date.now()) {
-    throw new Error("UnlockTime must be in the future (mock check)!");
-  }
+  // Převod delay na konkrétní unlockTime
+  const unlockTime = Math.floor(Date.now() / 1000) + Number(delayInSeconds);
 
   // Vytvoříme objekt dárku
   const newGift = {
     sender: sender,
     recipient: recipient,
-    unlockTime: Number(unlockTime),
+    unlockTime: unlockTime, // Nyní vypočítaný dynamicky!
     amount: amount,
     withdrawn: false,
   };
@@ -46,7 +44,7 @@ function mockWithdrawGift(giftId, caller) {
   if (caller !== gift.recipient) {
     throw new Error("Only the recipient can withdraw (mock check)");
   }
-  if (Date.now() < gift.unlockTime) {
+  if (Math.floor(Date.now() / 1000) < gift.unlockTime) {
     throw new Error("Not yet unlocked!");
   }
 
@@ -67,7 +65,7 @@ function showAllGifts() {
   gifts.forEach((gift, index) => {
     const li = document.createElement("li");
     li.textContent = `GiftID: ${index}, Sender: ${gift.sender}, Recipient: ${gift.recipient}, 
-      Amount: ${gift.amount}, UnlockTime: ${gift.unlockTime}, Withdrawn: ${gift.withdrawn}`;
+      Amount: ${gift.amount}, UnlockTime: ${gift.unlockTime} (${new Date(gift.unlockTime * 1000)}), Withdrawn: ${gift.withdrawn}`;
     giftsList.appendChild(li);
   });
 }
@@ -76,12 +74,12 @@ function showAllGifts() {
 document.getElementById("btnCreateGift").addEventListener("click", () => {
   const sender = document.getElementById("sender").value;
   const recipient = document.getElementById("recipient").value;
-  const unlockTime = document.getElementById("unlockTime").value;
+  const delayInSeconds = document.getElementById("unlockTime").value; // Teď je to delay, ne timestamp!
   const amount = document.getElementById("amount").value;
   const createResult = document.getElementById("createResult");
   const createError = document.getElementById("createError");
 
-  // Vymažem staré zprávy
+  // Vymažeme staré zprávy
   createResult.textContent = "";
   createError.textContent = "";
 
@@ -89,7 +87,7 @@ document.getElementById("btnCreateGift").addEventListener("click", () => {
     const { giftId, txHash } = mockCreateGift(
       sender,
       recipient,
-      unlockTime,
+      delayInSeconds,
       amount
     );
     createResult.textContent = `Gift created successfully!
