@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gift Escrow DApp</title>
+</head>
+<body>
+  <h1>Gift Escrow – Simple DApp</h1>
+  
+  <!-- Button pro připojení k Metamask -->
+  <button id="btnConnect">Connect to Metamask</button>
+  <div id="userAddress"></div>
+
+  <hr>
+  <h2>Create Gift</h2>
+  <label>Recipient:</label> 
+  <input type="text" id="recipient" placeholder="0x123..." /><br>
+  <label>Unlock Time (Unix Timestamp):</label>
+  <input type="text" id="unlockTime" placeholder="např. 1690000000" /><br>
+  <label>Amount (ETH):</label>
+  <input type="text" id="amountEth" placeholder="např. 0.1" /><br>
+  <button id="btnCreateGift">Create Gift</button>
+  <div id="createGiftResult"></div>
+
+  <hr>
+  <h2>Withdraw Gift</h2>
+  <label>Gift ID:</label>
+  <input type="text" id="giftId" placeholder="např. 0" /><br>
+  <button id="btnWithdrawGift">Withdraw Gift</button>
+  <div id="withdrawGiftResult"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+    // 1) Adresa a ABI kontraktu
+    const CONTRACT_ADDRESS = "0xABCD..."; // <-- sem dosadíš skutečnou adresu
+    const CONTRACT_ABI = [
+      // <-- Zkopíruj celé pole 'abi' z kompilovaného GiftEscrow (vyexportované ABI)
+      {
+        "inputs":[
+          {"internalType":"address","name":"_recipient","type":"address"},
+          {"internalType":"uint256","name":"_unlockTime","type":"uint256"}
+        ],
+        "name":"createGift",
+        "outputs":[],
+        "stateMutability":"payable",
+        "type":"function"
+      },
+      {
+        "inputs":[{"internalType":"uint256","name":"_giftId","type":"uint256"}],
+        "name":"withdrawGift",
+        "outputs":[],
+        "stateMutability":"nonpayable",
+        "type":"function"
+      },
+      // ... atd. pro všechno, co potřebuješ používat
+    ];
+
+    let provider;
+    let signer;
+    let giftEscrowContract;
+
+    // Najdeme si HTML elementy
+    const btnConnect = document.getElementById("btnConnect");
+    const userAddressDiv = document.getElementById("userAddress");
+    const btnCreateGift = document.getElementById("btnCreateGift");
+    const btnWithdrawGift = document.getElementById("btnWithdrawGift");
+
+    const resultCreate = document.getElementById("createGiftResult");
+    const resultWithdraw = document.getElementById("withdrawGiftResult");
+
+    // 2) Připojení k Metamask
+    btnConnect.onclick = async () => {
+      if (typeof window.ethereum !== "undefined") {
+        try {
+          // Vyvoláme dialog v Metamasku pro připojení
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          signer = provider.getSigner();
+          const address = await signer.getAddress();
+          
+          // Vypíšeme adresu uživatele
+          userAddressDiv.innerText = "Connected as: " + address;
+
+          // Vytvoříme instanci kontraktu
+          giftEscrowContract = new ethers.Contract(
+            CONTRACT_ADDRESS,
+            CONTRACT_ABI,
+            signer
+          );
+        } catch (err) {
+          console.error(err);
+          alert("Connection failed: " + err.message);
+        }
+      } else {
+        alert("Metamask not found. Install Metamask extension!");
+      }
+    };
+
+    // 3) Funkce na vytvoření dárku
+    btnCreateGift.onclick = async () => {
+      if (!giftEscrowContract) {
+        alert("Connect first!");
+        return;
+      }
+      const recipientInput = document.getElementById("recipient").value;
+      const unlockTimeInput = document.getElementById("unlockTime").value;
+      const amountEth = document.getElementById("amountEth").value;
+
+      try {
+        // Convert ETH na wei
+        const amountWei = ethers.utils.parseEther(amountEth);
+
+        const tx = await giftEscrowContract.createGift(
+          recipientInput,
+          unlockTimeInput,
+          {
+            value: amountWei,
+          }
+        );
+        resultCreate.innerText = "Waiting for confirmation...";
+        await tx.wait();
+        resultCreate.innerText = "Gift created! Tx Hash: " + tx.hash;
+
+      } catch (err) {
+        console.error(err);
+        resultCreate.innerText = "Error: " + err.message;
+      }
+    };
+
+    // 4) Funkce na vybrání dárku
+    btnWithdrawGift.onclick = async () => {
+      if (!giftEscrowContract) {
+        alert("Connect first!");
+        return;
+      }
+      const giftIdInput = document.getElementById("giftId").value;
+
+      try {
+        const tx = await giftEscrowContract.withdrawGift(giftIdInput);
+        resultWithdraw.innerText = "Waiting for confirmation...";
+        await tx.wait();
+        resultWithdraw.innerText = "Gift withdrawn! Tx Hash: " + tx.hash;
+
+      } catch (err) {
+        console.error(err);
+        resultWithdraw.innerText = "Error: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
