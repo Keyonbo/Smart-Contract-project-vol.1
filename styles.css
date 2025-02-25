@@ -1,0 +1,67 @@
+body {
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.main {
+  margin: 0 20px;
+}
+
+header {
+  width: 100%;
+  background-color: #003d96;
+  margin: 0;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  color: #fff;
+  font-size: 36px;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  margin-top: 45px;
+}
+
+.create-gift__box {
+  display: flex;
+  flex-direction: column;
+}
+
+.lebel__text {
+  margin-top: 30px;
+  font-size: 20px;
+  color: #2e2e2e;
+}
+
+.myinput {
+  margin-top: 5px;
+  width: 30%;
+}
+
+.btn-creategift {
+  margin-top: 45px;
+  width: 200px;
+  border-radius: 20px;
+  background-color: #003d96;
+  color: #fff;
+  height: 30px;
+  border: none;
+  font-size: 14px;
+}
+
+.btn-creategift:hover {
+  background-color: #fff;
+  color: #003d96;
+  border: 0.51mm solid #003d96;
+}
+
+hr {
+  margin-top: 45px;
+}
