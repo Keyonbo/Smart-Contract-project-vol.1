@@ -23,16 +23,17 @@
         color: red; */
       /* } */
     </style>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js"></script>
 
-    <script src="./script.js" defer></script>
+        <script src="./scriptMeta.js" defer></script>
   </head>
 
   <body>
-    <header><h1>Gift Escrow - Model (No Real Blockchain)</h1></header>
+    <header><h1>2nd version</h1></header>
 
-    <!-- <button id="connectWallet">Connect Wallet</button>
-    <p id="walletAddress"></p> -->
+    <button id="connectWallet">Connect Wallet</button>
+<p id="walletAddress"></p>
+
 
     <!-- Formulář pro vytvoření "dárku" -->
     <section class="main">
@@ -56,7 +57,9 @@
           placeholder="0xFAKE_Recipient"
         />
 
-        <label class="lebel__text">Unlock Time (timeDelay in Seconds):</label>
+        <label class="lebel__text"
+          >Unlock Time (timeDelay in Seconds):</label
+        >
         <input
           class="myinput"
           type="text"
@@ -109,12 +112,16 @@
       <ul id="giftsList"></ul>
 
       <button
-        class="btn-creategift"
-        style="margin-top: 15px"
-        onclick="window.location.href='./indexMeta.html'"
-      >
-        2nd version of project
-      </button>
+      class="btn-creategift"
+      style="margin-top: 15px"
+      onclick="window.location.href='./index.html'"
+    >
+      back to main page
+    </button>
     </section>
+
+
+
+  
   </body>
 </html>
