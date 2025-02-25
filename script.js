@@ -2,20 +2,21 @@
 // Stejná struktura jako v našem kontraktu: { sender, recipient, unlockTime, amount, withdrawn }
 let gifts = [];
 
-// Funkce pro vytvoření "dárku"
 function mockCreateGift(sender, recipient, delayInSeconds, amount) {
   // Simulujeme basic checky:
   if (!sender || !recipient || !delayInSeconds || !amount) {
     throw new Error("Missing input fields!");
   }
-  // Převod delay na konkrétní unlockTime
-  const unlockTime = Math.floor(Date.now() / 1000) + Number(delayInSeconds);
+
+  // Ensure unlockTime is in seconds
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const unlockTime = currentTimestamp + Number(delayInSeconds);
 
   // Vytvoříme objekt dárku
   const newGift = {
     sender: sender,
     recipient: recipient,
-    unlockTime: unlockTime, // Nyní vypočítaný dynamicky!
+    unlockTime: unlockTime, // Always in seconds
     amount: amount,
     withdrawn: false,
   };
