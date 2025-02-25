@@ -126,7 +126,7 @@
 
 
 
-
+document.addEventListener("DOMContentLoaded", function () {
 // 1️⃣ Подключение к Ethereum через Metamask
 // 1️⃣ Подключение к Ethereum через Metamask
 const web3 = new Web3(window.ethereum);
@@ -220,5 +220,5 @@ document.getElementById("btnShowGifts").addEventListener("click", showGifts);
 
 // 9️⃣ Подключение кошелька при загрузке
 connectWallet();
-
+});
 
