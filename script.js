@@ -111,7 +111,7 @@ document.getElementById("btnWithdrawGift").addEventListener("click", () => {
 
   try {
     const { txHash, amount } = mockWithdrawGift(giftId, caller);
-    withdrawResult.textContent = `Gift withdrawn! TxHash: ${txHash}, You received ${amount}`;
+    withdrawResult.textContent = `Gift withdrawn! TxHash: ${txHash}, You received ${amount} Wei`;
   } catch (err) {
     withdrawError.textContent = err.message;
   }
