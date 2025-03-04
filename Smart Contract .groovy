@@ -3,22 +3,22 @@ pragma solidity ^0.8.0;
 
 /**
  * @title GiftEscrow
- * @dev Smart kontrakt pro vytváření "časově uzamčených" dárků v ETH.
+ * @dev A smart contract for creating ETH "time-locked" gifts.
  */
 contract GiftEscrow {
-    // Struktura reprezentující jeden dar
+    // Structure representing a single gift
     struct Gift {
-        address sender;       // Adresa dárce
-        address recipient;    // Adresa příjemce
-        uint256 amount;       // Množství ETH (v wei), které je uzamčeno
-        uint256 unlockTime;   // Čas (timestamp), kdy je dárek možné vybrat
-        bool withdrawn;       // Označuje, zda byl dárek vyzvednut
+        address sender;       // Address of the sender (gift giver)
+        address recipient;    // Address of the recipient
+        uint256 amount;       // Amount of ETH (in wei) that is locked
+        uint256 unlockTime;   // Timestamp when the gift can be withdrawn
+        bool withdrawn;       // Indicates whether the gift has been withdrawn
     }
 
-    // Pole všech dárků
+    // Array of all gifts
     Gift[] public gifts;
 
-    // Událost pro informování o nově vytvořeném dárku
+    // Event emitted when a new gift is created
     event GiftCreated(
         uint256 giftId,
         address indexed sender,
@@ -27,7 +27,7 @@ contract GiftEscrow {
         uint256 unlockTime
     );
 
-    // Událost pro informování o úspěšném vybrání dárku
+    // Event emitted when a gift has been successfully withdrawn
     event GiftWithdrawn(
         uint256 giftId,
         address indexed recipient,
@@ -35,19 +35,19 @@ contract GiftEscrow {
     );
 
     /**
-     * @dev Vytvoří nový dárek a uzamkne do něj ETH na `block.timestamp + _delayInSeconds`.
-     * @param _recipient Adresa příjemce dárku
-     * @param _delayInSeconds Počet sekund, po které bude dárek uzamčen
+     * @dev Creates a new gift and locks ETH until `block.timestamp + _delayInSeconds`.
+     * @param _recipient The address of the gift recipient
+     * @param _delayInSeconds The number of seconds after which the gift can be unlocked
      */
     function createGift(address _recipient, uint256 _delayInSeconds) external payable {
         require(msg.value > 0, "Must send ETH to create a gift");
         require(_recipient != address(0), "Recipient cannot be zero address");
         require(_delayInSeconds > 0, "Delay must be greater than zero");
 
-        // Vypočítání unlockTime jako současný čas + delay
+        // Calculate the unlock time as the current timestamp + delay
         uint256 unlockTime = block.timestamp + _delayInSeconds;
 
-        // Vytvoření struktury Gift
+        // Create the Gift struct
         Gift memory newGift = Gift({
             sender: msg.sender,
             recipient: _recipient,
@@ -56,53 +56,53 @@ contract GiftEscrow {
             withdrawn: false
         });
 
-        // Uložíme do pole a získáme ID
+        // Store it in the array and get its ID
         gifts.push(newGift);
         uint256 giftId = gifts.length - 1;
 
-        // Emitujeme událost
+        // Emit the event
         emit GiftCreated(giftId, msg.sender, _recipient, msg.value, unlockTime);
     }
 
     /**
-     * @dev Příjemce vybere dárek, pokud už nastal unlockTime.
-     * @param _giftId ID dárku v poli gifts
+     * @dev Allows the recipient to withdraw the gift after the unlockTime has passed.
+     * @param _giftId The ID of the gift in the gifts array
      */
     function withdrawGift(uint256 _giftId) external {
-        // Validace ID
+        // Validate the gift ID
         require(_giftId < gifts.length, "Invalid gift ID");
 
-        // Pomocná reference na strukturu (ukazatel)
+        // Reference the gift struct
         Gift storage gift = gifts[_giftId];
 
-        // Kontrola, že už nebyl vyzvednut
+        // Check that the gift has not already been withdrawn
         require(!gift.withdrawn, "Gift already withdrawn");
-        // Kontrola času
+        // Check if the unlock time has passed
         require(block.timestamp >= gift.unlockTime, "Not yet unlocked");
-        // Kontrola, že volající je skutečný příjemce
+        // Check that the caller is the actual recipient
         require(msg.sender == gift.recipient, "Only recipient can withdraw");
 
-        // Značíme dárek jako vyzvednutý
+        // Mark the gift as withdrawn
         gift.withdrawn = true;
 
-        // Poslání peněz příjemci
+        // Transfer the funds to the recipient
         payable(gift.recipient).transfer(gift.amount);
 
-        // Emit události
+        // Emit the withdrawal event
         emit GiftWithdrawn(_giftId, gift.recipient, gift.amount);
     }
 
     /**
-     * @dev Získat počet všech dárků (např. pro frontend).
-     * @return počet uložených dárků
+     * @dev Returns the total number of gifts (e.g., for frontend use).
+     * @return The count of stored gifts
      */
     function getGiftCount() external view returns (uint256) {
         return gifts.length;
     }
 
     /**
-     * @dev Získat informace o konkrétním dárku.
-     * @param _giftId ID dárku
+     * @dev Returns information about a specific gift.
+     * @param _giftId The ID of the gift
      */
     function getGift(uint256 _giftId)
         external
