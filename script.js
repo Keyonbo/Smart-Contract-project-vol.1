@@ -1,9 +1,17 @@
-// Pole pro ukládání "dárků" v paměti.
-// Stejná struktura jako v našem kontraktu: { sender, recipient, unlockTime, amount, withdrawn }
+// Array for storing "gifts" in memory.
+// Same structure as in our contract: { sender, recipient, unlockTime, amount, withdrawn }
 let gifts = [];
 
+/**
+ * Simulates the creation of a gift with basic checks.
+ * @param {string} sender - The address of the sender.
+ * @param {string} recipient - The address of the recipient.
+ * @param {number} delayInSeconds - The delay in seconds after which the gift can be unlocked.
+ * @param {number} amount - The amount of the gift (in Wei).
+ * @returns {{ giftId: number, txHash: string }} The newly created gift ID and a mock transaction hash.
+ */
 function mockCreateGift(sender, recipient, delayInSeconds, amount) {
-  // Simulujeme basic checky:
+  // Simulate basic checks:
   if (!sender || !recipient || !delayInSeconds || !amount) {
     throw new Error("Missing input fields!");
   }
@@ -12,7 +20,7 @@ function mockCreateGift(sender, recipient, delayInSeconds, amount) {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   const unlockTime = currentTimestamp + Number(delayInSeconds);
 
-  // Vytvoříme objekt dárku
+  // Create the gift object
   const newGift = {
     sender: sender,
     recipient: recipient,
@@ -21,17 +29,22 @@ function mockCreateGift(sender, recipient, delayInSeconds, amount) {
     withdrawn: false,
   };
 
-  // Přidáme do pole a získáme ID (index)
+  // Push to the array and obtain the ID (index)
   const giftId = gifts.length;
   gifts.push(newGift);
 
-  // Vygenerujeme náhodnou "transakční hash"
+  // Generate a random "transaction hash"
   const txHash = "0x" + Math.floor(Math.random() * 1e16).toString(16);
 
   return { giftId, txHash };
 }
 
-// Funkce pro vybrání "dárku"
+/**
+ * Simulates the withdrawal of a gift.
+ * @param {number} giftId - The ID of the gift to withdraw.
+ * @param {string} caller - The address of the caller initiating the withdrawal.
+ * @returns {{ txHash: string, amount: number }} The mock transaction hash and the withdrawn amount.
+ */
 function mockWithdrawGift(giftId, caller) {
   if (giftId < 0 || giftId >= gifts.length) {
     throw new Error("Invalid gift ID");
@@ -49,19 +62,21 @@ function mockWithdrawGift(giftId, caller) {
     throw new Error("Not yet unlocked!");
   }
 
-  // Označíme, že byl vybrán
+  // Mark as withdrawn
   gift.withdrawn = true;
 
-  // Simulace "tx hash"
+  // Simulate "transaction hash"
   const txHash = "0x" + Math.floor(Math.random() * 1e16).toString(16);
 
   return { txHash, amount: gift.amount };
 }
 
-// Funkce pro vypsání seznamu dárků do <ul>
+/**
+ * Displays the list of all gifts in a <ul> element.
+ */
 function showAllGifts() {
   const giftsList = document.getElementById("giftsList");
-  giftsList.innerHTML = ""; // smaže předchozí obsah
+  giftsList.innerHTML = ""; // Clear previous content
 
   gifts.forEach((gift, index) => {
     const li = document.createElement("li");
@@ -71,16 +86,16 @@ function showAllGifts() {
   });
 }
 
-// Při kliknutí na "Create Gift"
+// On click "Create Gift"
 document.getElementById("btnCreateGift").addEventListener("click", () => {
   const sender = document.getElementById("sender").value;
   const recipient = document.getElementById("recipient").value;
-  const delayInSeconds = document.getElementById("unlockTime").value; // Teď je to delay, ne timestamp!
+  const delayInSeconds = document.getElementById("unlockTime").value; // This is the delay, not the timestamp!
   const amount = document.getElementById("amount").value;
   const createResult = document.getElementById("createResult");
   const createError = document.getElementById("createError");
 
-  // Vymažeme staré zprávy
+  // Clear old messages
   createResult.textContent = "";
   createError.textContent = "";
 
@@ -98,14 +113,14 @@ document.getElementById("btnCreateGift").addEventListener("click", () => {
   }
 });
 
-// Při kliknutí na "Withdraw Gift"
+// On click "Withdraw Gift"
 document.getElementById("btnWithdrawGift").addEventListener("click", () => {
   const giftId = parseInt(document.getElementById("giftId").value, 10);
   const caller = document.getElementById("caller").value;
   const withdrawResult = document.getElementById("withdrawResult");
   const withdrawError = document.getElementById("withdrawError");
 
-  // Vymažeme staré zprávy
+  // Clear old messages
   withdrawResult.textContent = "";
   withdrawError.textContent = "";
 
@@ -117,8 +132,5 @@ document.getElementById("btnWithdrawGift").addEventListener("click", () => {
   }
 });
 
-// Při kliknutí na "Show Gifts"
+// On click "Show Gifts"
 document.getElementById("btnShowGifts").addEventListener("click", showAllGifts);
-
-
-
