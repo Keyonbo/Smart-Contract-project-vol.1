@@ -3,8 +3,8 @@ const web3 = new Web3(window.ethereum);
 //  MetaMask Conncetion
 
 // Insert Conctract adress and ABI
-const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138"; 
-const CONTRACT_ABI = [ /*ABI*/ ];
+const CONTRACT_ADDRESS = "0xd9145CCE52D386f254917e481eB44e9943F39138"; //Deployed contract on Remix IDE/Blockchain
+const CONTRACT_ABI = [ /*ABI*/ ]; //Deployed contract on Remix IDE/Blockchain
 
 // Contract Connection
 const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
